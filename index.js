@@ -31,10 +31,17 @@ async function run() {
 
     const productCollection = client.db('foodDB').collection('product');
     const brandCollection = client.db('foodDB').collection('brands');
+    const cartCollection = client.db('foodDB').collection('carts');
     
-
+    // get products
     app.get('/products', async(req, res) =>{
       const cursor = productCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+    // get carts
+    app.get('/carts', async(req, res) =>{
+      const cursor = cartCollection.find();
       const result = await cursor.toArray();
       res.send(result)
     })
@@ -49,8 +56,16 @@ async function run() {
 
     app.post('/products', async(req, res) =>{
       const newProduct = req.body;
-      console.log(newProduct);
+
       const result = await productCollection.insertOne(newProduct);
+      res.send(result);
+    })
+
+    // cart post
+    app.post('/carts', async(req, res) =>{
+      const newCart = req.body;
+      console.log(newCart);
+      const result = await cartCollection.insertOne(newCart);
       res.send(result);
     })
 
@@ -71,10 +86,42 @@ async function run() {
       res.send(result);
     })
 
+
+    // single cart
+    app.get('/carts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await cartCollection.findOne(query)
+      console.log(result);
+      res.send(result);
+    })
+
+    app.put('/products/:id', async(req, res) =>{
+      const id = req.params.id;
+      console.log(id)
+      const filter = {_id: new ObjectId(id)};
+      const product = req.body;
+      const update = {
+        $set: product
+      }
+      const result = await productCollection.updateOne(filter, update);
+      res.send(result)
+    })
+
+    // product details
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const result = await productCollection.findOne(filter);
+      console.log(result);
+      res.send(result);
+    })
+   
+
     // Brand wish product get
-     app.get("/brand-product/:id", async (req, res) => {
-        const brandId = req.params.id;
-        const filter = {brand_id : brandId }
+     app.get("/brand-product/:name", async (req, res) => {
+        const brandId = req.params.name;
+        const filter = {brand : brandId }
         const result = await productCollection.find(filter).toArray();
         res.send(result)
     });
