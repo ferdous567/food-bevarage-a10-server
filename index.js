@@ -104,8 +104,7 @@ async function run() {
       res.send(result);
     })
 
-    // hello 
-
+   
     app.put('/products/:id', async(req, res) =>{
       const id = req.params.id;
       console.log(id)
